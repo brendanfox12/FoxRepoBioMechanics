@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r,include=FALSE}
 library(tidyverse) 
+library(ggplot2)
+library(dplyr)
 ``` 
 
 
@@ -24,29 +26,6 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ###The Code Stuff
 ```{r cars}
-o <- read_csv("O_jumping_1.csv")
-head(o)
-plot(o$ms,o$cm)
-o%>%
-  ggplot(aes(x=ms,y=cm))+geom_point()+geom_smooth(col="red")
-
-o1 <- read_csv("O_jumping_1.csv")
-o2 <- read_csv("O_jumping_1.csv")
-o3 <- read_csv("O_jumping_1.csv")
-o4 <- read_csv("O_jumping_1.csv")
-o5 <- read_csv("O_jumping_1.csv")
-
-z1 <- read_csv("Z_jumping_1.csv")
-z2 <- read_csv("Z_jumping_1.csv")
-z3 <- read_csv("Z_jumping_1.csv")
-z4 <- read_csv("Z_jumping_1.csv")
-z5 <- read_csv("Z_jumping_1.csv")
-
-dat <- rbind(o1,o2,o3,o3,o4,o5,z1,z2,z3,z3,z4,z5)
-dat%>%
-  ggplot(aes(x=ms,y=cm))+geom_point()
-
-list.files(pattern = ".csv")
 dat <- list() #an empty list
 
 f <- list.files(pattern=".csv") #store the file names
@@ -60,30 +39,21 @@ for(i in f){
   dat[[i]] <- dat.i
 }
 all.dat <- do.call(rbind,dat)
-head(all.dat)
-tail(all.dat)
-
-all.dat %>%
-  group_by(who,rep) %>%
-  summarise(max = max(cm))
-
 max.dat <- all.dat %>%
   group_by(who,rep) %>%
   summarise(max = max(cm))
-
-
-max.dat%>%
-  ggplot(aes(x=who,y=max))+geom_boxplot()
-
-max.dat%>%
+  
+max.dat %>%
   group_by(who)%>%
   summarise(mean.max=mean(max),sd.max=sd(max))
-
-se <- function(x){sd(x)/sqrt(length(x))}
-max.dat%>%
-  group_by(who)%>%
-  summarise(mean.max=mean(max),sd.max=sd(max),se.max=se(max))
-
+  se <- function(x){sd(x)/sqrt(length(x))}
+  ymaxError <- function(x){mean.max + sd(x)}
+  yminError <- function(x){mean.max - sd(x)}
+  max.dat%>%
+    group_by(who)%>%
+    summarise(mean.max=mean(max),sd.max=sd(max),se.max=se(max))%>%
+    ggplot(aes(x=who,y=mean.max)) + geom_point(aes(col=who)) + geom_errorbar(ymin = yminError, ymax = ymaxError)
+  
 
 ```
 

@@ -1,0 +1,124 @@
+---
+title: "MiniProject1"
+author: "BrendanFox"
+date: "2023-02-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+##Import Necessary Libraries
+library(tidyverse) 
+library(ggplot2)
+library(dplyr)
+
+```
+
+## Kiddos Jumping
+
+```{r Behind The Scenes, include=FALSE}
+
+##Load data via loop and metadata method
+dat <- list()
+f <- list.files(pattern=".csv")
+
+for(i in f){
+  m <- unlist(strsplit(i,"_"))
+  Who <- m[1]
+  rep <- gsub(".csv","",m[3])
+  dat.i <- read_csv(i)%>%
+    mutate(Who=Who,rep=rep)
+  dat[[i]] <- dat.i
+}
+
+
+all.dat <- do.call(rbind,dat)
+##head(all.dat)
+##tail(all.dat)
+
+all.dat %>%
+  group_by(Who,rep) %>%
+  summarise(max = max(cm))
+
+max.dat <- all.dat %>%
+  group_by(Who,rep) %>%
+  summarise(max = max(cm))
+
+max.dat%>%
+  group_by(Who)%>%
+  summarise(mean.max=mean(max),sd.max=sd(max))
+
+##Create a standard error function
+se <- function(x){sd(x)/sqrt(length(x))}
+
+###########################################################################################################
+
+
+  
+###########################################################################################################
+
+
+
+```
+
+## Including The Plots
+
+First, we plotted the kids average jump height with error bars equal to one standard error of the mean.
+
+```{r Plot 1, echo=FALSE}
+
+##Plot 1 
+max.dat%>%
+  group_by(Who)%>%
+  summarise(mean.max=mean(max),sd.max=sd(max),se.max=se(max)) %>%
+  ggplot(aes(x=Who,y=mean.max, col = Who)) +
+  geom_point() +
+  labs(title = "Plot Of The Mean Maximum +/- 1 SE For Each Kiddo", x = "Ollie (O) and Zo (Z)", y = "Average Jump Height (cm)") +
+  geom_errorbar(aes(ymin=mean.max-se.max, ymax=mean.max+se.max)) 
+
+
+
+
+```
+Plot 1 results: This data shows that Zo had the highest jumps on average.  However, Ollie had less variability within his group of jumps.  
+
+
+## Let's look at an ANOVA test of the results
+
+ANOVA summary results: 
+
+
+```{r ANOVA, echo=TRUE}
+
+##ANOVA Test
+anova.dat <- max.dat%>%
+  group_by(Who)%>%
+  summarise(mean.max=mean(max), sd.max=sd(max), se.max=se(max))
+  fit <- aov(mean.max ~ Who, data = anova.dat)
+  #ANOVA Summary
+  summary(fit)
+```
+
+## Finally, lets look at each of the kiddos jump over each of the replicates and analyze any trends
+
+```{r Plot 2, echo=FALSE}
+
+##Plot Two
+all.dat %>%
+  group_by(Who,rep) %>%
+  summarise(max = max(cm), min = min(cm)) %>%
+  ggplot(aes(x=as.numeric(rep), y = max-min, col = Who)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Plot Of The Maximum Vertical Displacement For Each Kiddo Versus Replicate", x = "Replicate   Number", y = "Maximum Vertical Displacement")
+
+
+
+
+```
+
+Plot 2 Analysis:  Here, we can see that over each replicate, the two kids have very different trends. Ollie seemed to improve over the set of jumps while Zo was the opposite, generally decreasing after have a great first jump.  While we would need to do more analysis to further investigate what is going on, we can make some inferences.  One could be that Zo had a mega first jump. From there, the next jumps were just regressions to her mean. Likewise, Ollie could have had the opposite and improved solely due to the concept of regression to mean.  
+
+Another direction that we can analyze this data is by looking at how tired muscles may have gotten after each jump.  Jump fatigue may have effected Zo more than Ollie.  However, if this were to be the case, we'd expect to see two negative slopes with one of them just more negative than the other.  Overall, we got good data, but without further investigation, we can't know for sure what is going on.
+
