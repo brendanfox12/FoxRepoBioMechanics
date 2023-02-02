@@ -81,12 +81,19 @@ max.dat%>%
 
 
 ```
+
+
+
+
+##
+##
+##
 Plot 1 results: This data shows that Zo had the highest jumps on average.  However, Ollie had less variability within his group of jumps.  
 
 
 ## Let's look at an ANOVA test of the results
 
-ANOVA summary results: 
+ANOVA summary results: This ANOVA test result shows that "Who" is jumping is responsible for about 40% of the variance in the data.  This is large and makes sense because when comparing the two kiddos, who is jumping will have a significant impact on determining the height jumped. 
 
 
 ```{r ANOVA, echo=TRUE}
@@ -121,4 +128,10 @@ all.dat %>%
 Plot 2 Analysis:  Here, we can see that over each replicate, the two kids have very different trends. Ollie seemed to improve over the set of jumps while Zo was the opposite, generally decreasing after have a great first jump.  While we would need to do more analysis to further investigate what is going on, we can make some inferences.  One could be that Zo had a mega first jump. From there, the next jumps were just regressions to her mean. Likewise, Ollie could have had the opposite and improved solely due to the concept of regression to mean.  
 
 Another direction that we can analyze this data is by looking at how tired muscles may have gotten after each jump.  Jump fatigue may have effected Zo more than Ollie.  However, if this were to be the case, we'd expect to see two negative slopes with one of them just more negative than the other.  Overall, we got good data, but without further investigation, we can't know for sure what is going on.
+
+
+
+
+
+
 
